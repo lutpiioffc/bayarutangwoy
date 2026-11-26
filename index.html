@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IWAN DEBT REMINDER 💳</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050508;
+            --bg-card: #0f1016;
+            --bg-elevated: #181922;
+            --gold: #d4af37;
+            --gold-bright: #ffdf73;
+            --gold-dim: rgba(212, 175, 55, 0.15);
+            --red-glow: #ff1e38;
+            --red-dim: rgba(255, 30, 56, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-gold: rgba(212, 175, 55, 0.3);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            min-height: 100dvh;
+            background: radial-gradient(circle at top right, #1a080d 0%, var(--bg-deep) 50%, #020204 100%);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .hidden { display: none !important; }
+
+        /* LOADING SCREEN */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #040406;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+
+        .loader-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            text-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+            animation: pulseGlow 1.8s infinite;
+        }
+
+        .loader-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loader-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, var(--red-glow), var(--gold));
+            animation: loadProgress 1.4s infinite ease-in-out;
+        }
+
+        @keyframes loadProgress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+
+        /* HEADER & NAVIGATION */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: rgba(15, 16, 22, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .brand-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+            color: #050508;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #ff334b, var(--red-glow));
+            color: #fff;
+            box-shadow: 0 4px 15px var(--red-dim);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
+        }
+
+        .btn-outline:hover { background: var(--gold-dim); }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 16px 60px;
+        }
+
+        /* HERO CARD (HALAMAN UTAMA IWAN) */
+        .hero-card {
+            background: linear-gradient(145deg, var(--bg-card), var(--bg-elevated));
+            border: 2px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px var(--red-dim);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--red-glow), var(--gold), var(--red-glow));
+            animation: neonFlow 3s infinite linear;
+        }
+
+        @keyframes neonFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            text-shadow: 0 0 15px rgba(255, 30, 56, 0.5);
+            animation: textFlicker 4s infinite;
+        }
+
+        @keyframes textFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.85; text-shadow: none; }
+        }
+
+        .target-name {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--gold-bright);
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: var(--red-dim);
+            border: 1.5px solid var(--red-glow);
+            color: #ff6b7a;
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        .status-badge.paid {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .hero-message {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            font-size: 14.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto 24px;
+        }
+
+        /* COUNTDOWN & STATS GRID */
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gold-bright);
+        }
+
+        .stat-value.red { color: var(--red-glow); }
+
+        /* PANEL & TABLES */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gold-bright);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+            font-size: 13.5px;
+        }
+
+        th {
+            background: #151620;
+            color: var(--gold);
+            text-align: left;
+            padding: 12px 14px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-top: 1px solid var(--border-glass);
+            vertical-align: middle;
+        }
+
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        /* ETIKA FOOTER */
+        .ethics-notice {
+            background: rgba(212, 175, 55, 0.06);
+            border-left: 3px solid var(--gold);
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-top: 24px;
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            padding: 26px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            animation: fadeUp 0.3s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 12px 14px;
+            background: #08080c;
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-control:focus {
+            border-color: var(--gold);
+        }
+
+        /* PRINTABLE RECEIPT / PROOF */
+        .receipt-paper {
+            background: #ffffff;
+            color: #111827;
+            padding: 28px;
+            border-radius: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            border-top: 6px solid var(--gold);
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-receipt, #printable-receipt * { visibility: visible; }
+            #printable-receipt {
+                position: fixed;
+                left: 0; top: 0; width: 100%;
+                box-shadow: none;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="loader-logo">IWAN DEBT REMINDER</div>
+        <div style="font-size: 12px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 16px;">MEMUAT DASHBOARD AMAN & PROFESIONAL...</div>
+        <div class="loader-bar"></div>
+    </div>
+
+    <!-- TOP NAVIGATION -->
+    <header class="top-nav">
+        <div class="brand-title">IWAN DEBT REMINDER 💳</div>
+        <div class="nav-actions">
+            <button class="btn btn-outline btn-sm" onclick="openAdminModal()">🔐 Admin</button>
+            <button class="btn btn-gold btn-sm" onclick="openContactWhatsApp()">💬 Hubungi WhatsApp</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="container">
+
+        <!-- 2. HALAMAN UTAMA (HERO SECTION UNTUK IWAN) -->
+        <section class="hero-card">
+            <div class="hero-title">PERINGATAN PEMBAYARAN</div>
+            <div class="target-name" id="display-target-name">Nama: IWAN</div>
+            <div class="status-badge" id="display-status-badge">STATUS: MENUNGGU PEMBAYARAN</div>
+            <div class="hero-message" id="display-hero-msg">
+                "Halo Iwan, kami ingin mengingatkan bahwa masih terdapat kewajiban pembayaran yang belum diselesaikan. Mohon segera melakukan konfirmasi dan menyelesaikan pembayaran sesuai kesepakatan."
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-gold" onclick="openConfirmModal()">✅ Konfirmasi Pembayaran</button>
+                <button class="btn btn-outline" onclick="openContactWhatsApp()">💬 Kirim Bukti via WhatsApp</button>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN & STATS GRID -->
+        <div class="grid-stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Tagihan Aktif</div>
+                <div class="stat-value gold" id="stat-total-amount">Rp 0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Sisa Waktu Jatuh Tempo</div>
+                <div class="stat-value red" id="stat-countdown">- Hari</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tanggal Jatuh Tempo</div>
+                <div class="stat-value" id="stat-due-date">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Status Verifikasi</div>
+                <div class="stat-value" id="stat-verify-status" style="color: #34d399;">Menunggu</div>
+            </div>
+        </div>
+
+        <!-- 3. & 4. FITUR PENAGIHAN & RIWAYAT -->
+        <section class="panel">
+            <div class="panel-header">
+                <div class="panel-title">📋 Rincian Tagihan & Riwayat Pembayaran</div>
+                <button class="btn btn-outline btn-sm" onclick="openAdminModal()">⚙️ Kelola Data</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Debitur</th>
+                            <th>Keterangan</th>
+                            <th>Nominal Tagihan</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billing-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- KOTAK KALKULATOR TOTAL TAGIHAN -->
+        <section class="panel" style="background: linear-gradient(135deg, rgba(212,175,55,0.05), var(--bg-card));">
+            <div class="panel-header">
+                <div class="panel-title">🧮 Kalkulator Total Kewajiban</div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: center;">
+                <div>
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Pokok Tagihan</label>
+                    <input type="text" id="calc-principal" class="input-control" value="0" readonly>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Biaya Administrasi</label>
+                    <input type="text" id="calc-admin" class="input-control" value="Rp 0" readonly>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Total Keseluruhan</label>
+                    <input type="text" id="calc-total" class="input-control" style="font-weight: 800; color: var(--gold-bright);" value="Rp 0" readonly>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. CATATAN ETIKA & PROFESIONALISME -->
+        <div class="ethics-notice">
+            <strong>Catatan Etika & Transparansi:</strong> Website <strong>IWAN DEBT REMINDER</strong> dirancang khusus sebagai pengingat kewajiban finansial yang sopan, profesional, transparan, dan menjunjung tinggi privasi. Sistem ini tidak menggunakan ancaman, intimidasi, maupun unsur mempermalukan, serta murni berfungsi sebagai pengingat pencatatan administrasi keuangan yang sah.
+        </div>
+    </main>
+
+    <!-- MODAL KONFIRMASI PEMBAYARAN OLEH IWAN -->
+    <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3 style="color: var(--gold-bright); margin-bottom: 14px;">✅ Konfirmasi Pembayaran</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                Silakan isi data konfirmasi pembayaran Anda di bawah ini agar dapat diverifikasi oleh admin.
+            </p>
+            <form id="confirm-form">
+                <div class="form-group">
+                    <label>Nama Pembayar</label>
+                    <input type="text" id="conf-name" class="input-control" value="Iwan" required>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah yang Dibayarkan (Rp)</label>
+                    <input type="number" id="conf-amount" class="input-control" placeholder="Contoh: 1500000" required>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Transfer / Pembayaran</label>
+                    <input type="date" id="conf-date" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Catatan / Keterangan Bank</label>
+                    <input type="text" id="conf-note" class="input-control" placeholder="Contoh: Transfer BCA a.n Iwan">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-gold" style="flex: 1;">Kirim Konfirmasi</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('confirm-modal')">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DASHBOARD ADMIN & EDIT DATA -->
+    <div id="admin-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width: 520px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="color: var(--gold-bright);">🔐 Dashboard Admin Pengelola</h3>
+                <button class="btn btn-outline btn-sm" onclick="closeModal('admin-modal')">✕</button>
+            </div>
+
+            <form id="admin-form">
+                <div class="form-group">
+                    <label>Nama Orang yang Ditagih</label>
+                    <input type="text" id="adm-name" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Tagihan (Rp)</label>
+                    <input type="number" id="adm-amount" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Jatuh Tempo</label>
+                    <input type="date" id="adm-due" class="input-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Status Pembayaran</label>
+                    <select id="adm-status" class="input-control">
+                        <option value="MENUNGGU PEMBAYARAN">MENUNGGU PEMBAYARAN</option>
+                        <option value="LUNAS">LUNAS</option>
+                        <option value="TERLAMBAT">TERLAMBAT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp Penagih (untuk tombol WA)</label>
+                    <input type="text" id="adm-wa" class="input-control" placeholder="6281234567890" required>
+                </div>
+                <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 10px;">Simpan Perubahan Tagihan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CETAK BUKTI / SURAT PEMBAYARAN -->
+    <div id="receipt-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width: 580px;">
+            <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="color: var(--gold-bright);">📄 Bukti / Surat Konfirmasi Tagihan</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-gold btn-sm" onclick="window.print()">🖨️ Cetak / PDF</button>
+                    <button class="btn btn-outline btn-sm" onclick="closeModal('receipt-modal')">✕ Tutup</button>
+                </div>
+            </div>
+
+            <div id="printable-receipt" class="receipt-paper">
+                <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #e5e7eb; padding-bottom: 14px; margin-bottom: 16px;">
+                    <div>
+                        <h2 style="font-family: 'Cinzel', serif; font-size: 20px; color: #111827;">IWAN DEBT REMINDER</h2>
+                        <p style="font-size: 11px; color: #6b7280;">Sistem Pengingat Kewajiban Finansial Profesional</p>
+                    </div>
+                    <div style="text-align: right; font-size: 12px;">
+                        <strong>BUKTI ADMINISTRASI</strong><br>
+                        <span id="rcpt-date">-</span>
+                    </div>
+                </div>
+
+                <p style="font-size: 13.5px; margin-bottom: 14px;">
+                    Telah dicatat dan dikonfirmasi rincian kewajiban pembayaran atas nama:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13.5px;">
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: 700; width: 35%;">Nama Debitur</td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb;" id="rcpt-name">Iwan</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: 700;">Nominal Tagihan</td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; font-weight: 800; color: #c81d25;" id="rcpt-amount">Rp 0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: 700;">Tanggal Jatuh Tempo</td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb;" id="rcpt-due">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: 700;">Status Pembayaran</td>
+                        <td style="padding: 8px; border: 1px solid #e5e7eb; font-weight: 700;" id="rcpt-status">MENUNGGU PEMBAYARAN</td>
+                    </tr>
+                </table>
+
+                <p style="font-size: 12px; color: #4b5563; line-height: 1.5;">
+                    Dokumen ini diterbitkan secara otomatis oleh sistem pencatatan TORO & IWAN DEBT REMINDER sebagai pengingat transparan dan sah. Terima kasih atas kerja sama dan komitmen penyelesaian kewajiban Anda.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // STORAGE & DEFAULT DATA
+        const STORAGE_KEY = 'iwan_debt_reminder_data_v1';
+
+        const defaultData = {
+            targetName: "Iwan",
+            amount: 2500000,
+            dueDate: "2026-04-15",
+            status: "MENUNGGU PEMBAYARAN",
+            waNumber: "6281234567890",
+            history: [
+                { id: 1, name: "Iwan", desc: "Kewajiban Pembayaran Q1", amount: 2500000, due: "2026-04-15", status: "MENUNGGU PEMBAYARAN" }
+            ]
+        };
+
+        let appData = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || defaultData;
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        // FORMAT RUPIAH & TANGGAL
+        function formatRupiah(num) {
+            return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+        }
+
+        function formatIndoDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr + 'T00:00:00');
+            return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // LOADING SCREEN HIDE
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.classList.add('hidden'), 500);
+            }, 800);
+            renderUI();
+        });
+
+        // RENDER UI UTAMA
+        function renderUI() {
+            const currentItem = appData.history[0] || { name: appData.targetName, amount: appData.amount, due: appData.dueDate, status: appData.status };
+
+            // Hero Section
+            document.getElementById('display-target-name').textContent = `Nama: ${currentItem.name.toUpperCase()}`;
+            const badge = document.getElementById('display-status-badge');
+            badge.textContent = `STATUS: ${currentItem.status}`;
+            if (currentItem.status === 'LUNAS') {
+                badge.className = 'status-badge paid';
+                document.getElementById('display-hero-msg').textContent = `"Halo ${currentItem.name}, terima kasih banyak! Kewajiban pembayaran Anda telah dinyatakan LUNAS dan tercatat dengan baik di sistem kami."`;
+                document.getElementById('stat-verify-status').textContent = 'Lunas ✓';
+                document.getElementById('stat-verify-status').style.color = '#34d399';
+            } else {
+                badge.className = 'status-badge';
+                document.getElementById('display-hero-msg').textContent = `"Halo ${currentItem.name}, kami ingin mengingatkan bahwa masih terdapat kewajiban pembayaran sebesar ${formatRupiah(currentItem.amount)} yang belum diselesaikan. Mohon segera melakukan konfirmasi."`;
+                document.getElementById('stat-verify-status').textContent = 'Pending';
+                document.getElementById('stat-verify-status').style.color = '#f5d061';
+            }
+
+            // Stats & Countdown
+            document.getElementById('stat-total-amount').textContent = formatRupiah(currentItem.amount);
+            document.getElementById('stat-due-date').textContent = formatIndoDate(currentItem.due);
+
+            // Countdown calculation
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const dueD = new Date(currentItem.due + 'T00:00:00');
+            const diffDays = Math.round((dueD - today) / (1000 * 60 * 60 * 24));
+            const countEl = document.getElementById('stat-countdown');
+            if (currentItem.status === 'LUNAS') {
+                countEl.textContent = 'Selesai (Lunas)';
+                countEl.style.color = '#34d399';
+            } else if (diffDays < 0) {
+                countEl.textContent = `Terlambat ${Math.abs(diffDays)} Hari`;
+                countEl.style.color = '#ff334b';
+            } else if (diffDays === 0) {
+                countEl.textContent = 'Jatuh Tempo Hari Ini!';
+                countEl.style.color = '#ffdf73';
+            } else {
+                countEl.textContent = `${diffDays} Hari Lagi`;
+                countEl.style.color = 'var(--gold-bright)';
+            }
+
+            // Calculator
+            document.getElementById('calc-principal').value = formatRupiah(currentItem.amount);
+            document.getElementById('calc-admin').value = formatRupiah(0);
+            document.getElementById('calc-total').value = formatRupiah(currentItem.amount);
+
+            // Table Render
+            const tbody = document.getElementById('billing-tbody');
+            tbody.innerHTML = '';
+            appData.history.forEach((h, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${h.name}</strong></td>
+                    <td>${h.desc || 'Kewajiban Pembayaran'}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">${formatRupiah(h.amount)}</td>
+                    <td>${formatIndoDate(h.due)}</td>
+                    <td><span style="font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 700; background: ${h.status==='LUNAS'?'rgba(16,185,129,0.15)':'rgba(255,30,56,0.15)'}; color: ${h.status==='LUNAS'?'#34d399':'#ff6b7a'};">${h.status}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn btn-outline btn-sm" onclick="openReceipt(${idx})">📄 Bukti</button>
+                            <button class="btn btn-gold btn-sm" onclick="markPaid(${idx})">✓ Lunas</button>
+                            <button class="btn btn-red btn-sm" onclick="deleteRecord(${idx})">🗑</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // BUTTON ACTIONS & MODALS
+        function openConfirmModal() {
+            document.getElementById('conf-amount').value = appData.amount;
+            document.getElementById('conf-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('confirm-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Konfirmasi pembayaran berhasil dikirim ke admin! Terima kasih.');
+            closeModal('confirm-modal');
+        });
+
+        function openAdminModal() {
+            const currentItem = appData.history[0] || {};
+            document.getElementById('adm-name').value = currentItem.name || appData.targetName;
+            document.getElementById('adm-amount').value = currentItem.amount || appData.amount;
+            document.getElementById('adm-due').value = currentItem.due || appData.dueDate;
+            document.getElementById('adm-status').value = currentItem.status || appData.status;
+            document.getElementById('adm-wa').value = appData.waNumber || '6281234567890';
+            document.getElementById('admin-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('admin-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            appData.targetName = document.getElementById('adm-name').value;
+            appData.amount = Number(document.getElementById('adm-amount').value);
+            appData.dueDate = document.getElementById('adm-due').value;
+            appData.status = document.getElementById('adm-status').value;
+            appData.waNumber = document.getElementById('adm-wa').value;
+
+            if (appData.history.length > 0) {
+                appData.history[0].name = appData.targetName;
+                appData.history[0].amount = appData.amount;
+                appData.history[0].due = appData.dueDate;
+                appData.history[0].status = appData.status;
+            } else {
+                appData.history.push({
+                    id: Date.now(),
+                    name: appData.targetName,
+                    desc: "Tagihan Utama",
+                    amount: appData.amount,
+                    due: appData.dueDate,
+                    status: appData.status
+                });
+            }
+
+            saveData();
+            renderUI();
+            closeModal('admin-modal');
+            alert('Data tagihan berhasil diperbarui.');
+        });
+
+        function markPaid(idx) {
+            appData.history[idx].status = 'LUNAS';
+            if (idx === 0) appData.status = 'LUNAS';
+            saveData();
+            renderUI();
+        }
+
+        function deleteRecord(idx) {
+            if (!confirm('Hapus data tagihan ini?')) return;
+            appData.history.splice(idx, 1);
+            if (appData.history.length === 0) {
+                appData.history.push({ id: 1, name: "Iwan", desc: "Tagihan Utama", amount: 0, due: new Date().toISOString().split('T')[0], status: "MENUNGGU PEMBAYARAN" });
+            }
+            saveData();
+            renderUI();
+        }
+
+        function openReceipt(idx) {
+            const h = appData.history[idx] || appData.history[0];
+            document.getElementById('rcpt-date').textContent = formatIndoDate(new Date().toISOString().split('T')[0]);
+            document.getElementById('rcpt-name').textContent = h.name;
+            document.getElementById('rcpt-amount').textContent = formatRupiah(h.amount);
+            document.getElementById('rcpt-due').textContent = formatIndoDate(h.due);
+            document.getElementById('rcpt-status').textContent = h.status;
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        function openContactWhatsApp() {
+            const currentItem = appData.history[0] || {};
+            const text = encodeURIComponent(`Halo, saya ingin melakukan konfirmasi terkait pembayaran atas nama ${currentItem.name} dengan nominal ${formatRupiah(currentItem.amount)}. Terima kasih.`);
+            window.open(`https://wa.me/${appData.waNumber}?text=${text}`, '_blank');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
